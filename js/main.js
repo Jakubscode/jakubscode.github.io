@@ -11,7 +11,7 @@ for (var i=0; i<stars.length; i++) {
 cards.cards.push(firstCard);
 var secondCard = [];
 secondCard.push( new float(document.getElementById('float'),100,100,true) );
-secondCard.push( new float(document.getElementById('button4'),window.innerWidth,window.innerHeight,false));
+secondCard.push( new float(document.getElementById('button4'),window.innerWidth,window.innerHeight,true));
 //console.log(firstCard.length, firstCard[0].Off(), firstCard[2].Off(), firstCard[1].Off());
 cards.cards.push(secondCard);
 var thirdCard = [];
