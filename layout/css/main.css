@@ -116,7 +116,11 @@ body {
     z-index:0;
     background-image: url('../pics/stars.png');
 }
-
+.code {
+    font-size:4rem;
+    font-family: monospace;
+    text-shadow: 0px 0px 4px #E62739;
+}
 /* --- WELCOME CARD --- */
 
 /* === SECOND CARD === */

@@ -1,5 +1,8 @@
 function LiveType(element,string,timeOut) {
     var el = element;
+    el.innerHTML = string;
+    el.style.width = el.offsetWidth + 40 + 'px';
+   el.innerHTML = '';
     var timeOut = timeOut;
     var str = string;
     var counter = 0;
@@ -15,10 +18,10 @@ function LiveType(element,string,timeOut) {
         var setCursor = function() {
             var cursor = window.setInterval(function() {
                 if (i) {
-                    el.innerHTML += "|";
+                    el.innerHTML = el.innerHTML.substr(0,el.innerHTML.length-1) + "|";
                     i = false;
                 } else {
-                    el.innerHTML = el.innerHTML.substr(0,el.innerHTML.length-1);
+                    el.innerHTML = el.innerHTML.substr(0,el.innerHTML.length-1) + '&#32';
                     i = true;
                 }
             },800)   

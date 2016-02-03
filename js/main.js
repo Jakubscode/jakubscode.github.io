@@ -44,4 +44,7 @@ for(var i = 0; i < nextButtons.length; i++) {
 document.getElementById('button4').addEventListener('click', function() {
     alert('points');
 });
-//var welcomeType = new LiveType(document.getElementById('welcome'), "Cześć! Jestem Kuba :).", 100);
+var welcomeType = new LiveType(document.getElementById('welcome'), "Cześć! Jestem Kuba :).", 100);
+window.addEventListener('load', function() {
+    welcomeType.start();
+})
