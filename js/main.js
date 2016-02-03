@@ -1,3 +1,4 @@
+/* === CARDS SETUP === */
 var cards = {};
 cards.class = new Cards('.card');
 cards.cards = [];
@@ -41,10 +42,52 @@ for(var i = 0; i < nextButtons.length; i++) {
         cards.class.next();
     })
 }
+/* --- CARDS SETUP --- */
+/* === VIEWPORT CHECKER === */
+var vpChecker = new ViewportChecker();
+var portrait = document.querySelector('.portrait');
+var description = document.querySelector('p.code');
+/*vpChecker.add(portrait, 
+    function(node) {
+        node.classList.remove('opacity0');
+        node.classList.add('fadeIn');
+    },
+    function() {
+    
+    }
+);
+vpChecker.add(description, 
+    function(node) {
+        node.classList.add('slideUp');
+    },
+    function() {
+    
+    }
+);*/
+
+
+/* --- VIEWPORT CHECKER --- */
 document.getElementById('button4').addEventListener('click', function() {
     alert('points');
 });
-var welcomeType = new LiveType(document.getElementById('welcome'), "Cześć! Jestem Kuba :).", 100);
+var welcomeType = new LiveType(document.getElementById('welcome'), "Cześć! Jestem Kuba :).", 80, function() {
+    portrait.classList.remove('opacity0');
+    portrait.classList.add('fadeIn');
+    window.setTimeout(function() {
+        description.classList.remove('opacity0');
+        description.classList.add('slideUp');
+    },400);
+    window.setTimeout(function() {
+        nextButtons[0].classList.remove('opacity0');
+        nextButtons[0].classList.add('fadeIn');
+
+    },1500)
+    window.setTimeout(function() {
+        nextButtons[0].classList.remove('fadeIn');
+        nextButtons[0].classList.add('pulse');
+
+    },2800)
+});
 window.addEventListener('load', function() {
     welcomeType.start();
 })

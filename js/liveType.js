@@ -1,8 +1,9 @@
-function LiveType(element,string,timeOut) {
+function LiveType(element,string,timeOut,callback) {
     var el = element;
     el.innerHTML = string;
     el.style.width = el.offsetWidth + 40 + 'px';
-   el.innerHTML = '';
+    el.innerHTML = '';
+    var callback = callback;
     var timeOut = timeOut;
     var str = string;
     var counter = 0;
@@ -12,6 +13,7 @@ function LiveType(element,string,timeOut) {
             if (counter > string.length){
                 window.clearInterval(interval);
                 setCursor();
+                callback();
             } 
         },timeOut)
         var i = false;
