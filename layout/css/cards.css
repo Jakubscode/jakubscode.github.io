@@ -1,0 +1,41 @@
+@keyframes toTop {
+    from {
+        top:0px;
+    }
+    to {
+        top: -100vh;
+    }
+}
+@keyframes toBottom {
+    from {
+        top:0px;
+    }
+    to {
+        top: 100vh;
+    }
+}
+@keyframes fromTopToCenter {
+    from {
+        top:-100vh;
+    }
+    to {
+        top: 0px;
+    }
+}
+@keyframes fromBottomToCenter {
+    from {
+        top:100vh;
+    }
+    to {
+        top: 0px;
+    }
+}
+.hide {
+   display:none;
+}
+.card {
+    width:100vw;
+    height:100vh;
+    overflow: hidden;
+    position: absolute;
+}
