@@ -15,10 +15,10 @@ secondCard.push( new float(document.getElementById('button4'),window.innerWidth,
 cards.cards.push(secondCard);
 var thirdCard = [];
 thirdCard.push( new float(document.getElementById('sky'),50,00,true) );
-thirdCard.push( new float(document.getElementById('mountains2'),60,0,true) );
+thirdCard.push( new float(document.getElementById('mountains2'),70,0,true) );
 thirdCard.push( new float(document.getElementById('mountains1'),100,0,true) );
 cards.cards.push(thirdCard);
-cards.cards.push([]);
+cards.cards.push([]); //czwarta karta
 var cardsMenuElement = document.querySelector('.cardsNav');
 var cardChangeCallback = function(cc,nc) {
     console.log('Wyłączam');
