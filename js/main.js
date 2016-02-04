@@ -70,6 +70,8 @@ vpChecker.add(description,
 document.getElementById('button4').addEventListener('click', function() {
     alert('points');
 });
+
+/* === FIRST CARD === */
 var welcomeType = new LiveType(document.getElementById('welcome'), "Cześć! Jestem Kuba :).", 80, function() {
     portrait.classList.remove('opacity0');
     portrait.classList.add('fadeIn');
@@ -88,6 +90,21 @@ var welcomeType = new LiveType(document.getElementById('welcome'), "Cześć! Jes
 
     },2800)
 });
-window.addEventListener('load', function() {
+
+/* --- FIRST CARD ---*/
+/* === GENERAL === */
+var loaderCounter = document.querySelector('.loaderCount');
+var removeLoader = function() {
+    loaderCounter.parentNode.parentNode.removeChild(loaderCounter.parentNode);
     welcomeType.start();
+}
+var loader = new Loader(loaderCounter,function() {
+    loaderCounter.innerHTML = "100%";
+    loaderCounter.style.webkitAnimation = "out 1s 1";
+    loaderCounter.style.animation = "out 1s 1";
+    loaderCounter.addEventListener("webkitAnimationEnd", removeLoader);
+    loaderCounter.addEventListener("animationend", removeLoader);
+});
+window.addEventListener('load', function() {
+    
 })
