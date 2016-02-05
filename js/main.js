@@ -9,6 +9,10 @@ for (var i=0; i<stars.length; i++) {
     firstCard.push( new float(stars[i],range[i], range[i], true) );
 }
 cards.cards.push(firstCard);
+var about = [];
+about.push( new float(document.querySelector('#desk'),300,0,true));
+about.push( new float(document.querySelector('#retroDesk'),300,0,true));
+cards.cards.push(about);
 var secondCard = [];
 secondCard.push( new float(document.getElementById('float'),100,100,true) );
 secondCard.push( new float(document.getElementById('button4'),window.innerWidth,window.innerHeight,true));
@@ -45,8 +49,7 @@ for(var i = 0; i < nextButtons.length; i++) {
 /* --- CARDS SETUP --- */
 /* === VIEWPORT CHECKER === */
 var vpChecker = new ViewportChecker();
-var portrait = document.querySelector('.portrait');
-var description = document.querySelector('p.code');
+
 /*vpChecker.add(portrait, 
     function(node) {
         node.classList.remove('opacity0');
@@ -72,23 +75,33 @@ document.getElementById('button4').addEventListener('click', function() {
 });
 
 /* === FIRST CARD === */
+
+var portrait = document.querySelector('.portrait');
+var description1 = document.querySelector('p.code');
+var description2 = document.querySelectorAll('p.code')[1];
+
+
 var welcomeType = new LiveType(document.getElementById('welcome'), "Cześć! Jestem Kuba :).", 80, function() {
     portrait.classList.remove('opacity0');
     portrait.classList.add('fadeIn');
     window.setTimeout(function() {
-        description.classList.remove('opacity0');
-        description.classList.add('slideUp');
-    },400);
+        description1.classList.remove('opacity0');
+        description1.classList.add('slideUp');
+    },800);
+    window.setTimeout(function() {
+        description2.classList.remove('opacity0');
+        description2.classList.add('slideUp');
+    },2000);
     window.setTimeout(function() {
         nextButtons[0].classList.remove('opacity0');
         nextButtons[0].classList.add('fadeIn');
 
-    },1500)
+    },2500)
     window.setTimeout(function() {
         nextButtons[0].classList.remove('fadeIn');
         nextButtons[0].classList.add('pulse');
 
-    },2800)
+    },3000)
 });
 
 /* --- FIRST CARD ---*/

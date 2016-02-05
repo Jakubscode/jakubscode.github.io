@@ -9,10 +9,10 @@ function LiveType(element,string,timeOut,callback) {
     var counter = 0;
     this.start = function() {
         var interval = window.setInterval(function() {
-            el.innerHTML = str.substr(0,counter++) + "|";
+            el.innerHTML = str.substr(0,counter++);
             if (counter > string.length){
                 window.clearInterval(interval);
-                setCursor();
+                //setCursor();
                 callback();
             } 
         },timeOut)
