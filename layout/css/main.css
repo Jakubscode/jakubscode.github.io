@@ -1,6 +1,7 @@
 /* === GLOBAL SETTINGS === */
 
 @import url(https://fonts.googleapis.com/css?family=Roboto:200,300,100&subset=latin,latin-ext);
+@import url(https://fonts.googleapis.com/css?family=Fira+Mono);
 
 @keyframes fadeIn {
     from {
@@ -9,6 +10,16 @@
     to {
         opacity:1;
     }
+}
+@-webkit-keyframes fadeZoomIn {
+  100%   {-webkit-transform: scale(1.0); opacity: 1;}
+  50%  {opacity: 1;}
+  0% {-webkit-transform: scale(0.1);opacity: 0;}
+}
+@keyframes fadeZoomIn {
+  100%   {transform: scale(1.0); opacity: 1;}
+  50%  {opacity: 1;}
+  0% {transform: scale(0.1);opacity: 0;}
 }
 @keyframes slideUp {
     from{
@@ -26,7 +37,6 @@
   100% {-webkit-transform: scale(1.0);}
 } 
 
-/* Standard syntax */ 
 @keyframes pulse {
   0%   {transform: scale(1.0);}
   
@@ -44,12 +54,36 @@
   50%  {opacity: 0;}
   100% {transform: scale(0.1);opacity: 0;}
 }
+@-webkit-keyframes slideDownLeftFadeIn {
+    0%   {-webkit-transform: translate(-200%,-200%); opacity:0; }
+    30%  {opacity:0.5}
+    100% {-webkit-transform: translate(0%,0%); opacity:1;}
+}
+@keyframes slideDownLeftFadeIn {
+    0%   {transform: translate(-200%,-200%); opacity:0; }
+    30%  {opacity:0.5}
+    100% {transform: translate(0%,0%); opacity:1;}
+}
+@-webkit-keyframes slideDownRightFadeIn {
+    0%   {-webkit-transform: translate(200%,-200%); opacity:0; }
+    30%  {opacity:0.5}
+    100% {-webkit-transform: translate(0%,0%); opacity:1;}
+}
+@keyframes slideDownRightFadeIn {
+    0%   {transform: translate(200%,-200%); opacity:0; }
+    30%  {opacity:0.5}
+    100% {transform: translate(0%,0%); opacity:1;}
+}
 .fadeIn {
     opacity: 1;
     animation-name: fadeIn;
     animation-duration: 600ms;
     animation-iteration-count: 1;
     
+}
+.fadeZoomIn {
+    -webkit-animation: fadeZoomIn 600ms ease 0s 1;
+    animation: fadeZoomIn  600ms ease 0s 1;
 }
 .slideUp {
     animation-name: slideUp;
@@ -60,6 +94,19 @@
     animation-name: pulse;
     animation-duration: 1500ms;
     animation-iteration-count: infinite;
+}
+.out  {
+    -webkit-animation: out 600ms ease 0s 1;
+    animation: out 600ms ease 0s 1;
+}
+.slideDownLeftFadeIn {
+    -webkit-animation: slideDownLeftFadeIn 600ms ease 0s 1;
+    animation: slideDownLeftFadeIn 600ms ease 0s 1;
+    
+}
+.slideDownRightFadeIn {
+    -webkit-animation: slideDownRightFadeIn 600ms ease 0s 1;
+    animation: slideDownRightFadeIn 600ms ease 0s 1 ;
 }
 .opacity0 {
     opacity: 0;
@@ -127,12 +174,32 @@ body {
     overflow:hidden;
     position: relative;
 }
+.scroll {
+    overflow-y:auto;
+    width:100%;
+    height:100%;
+    position:relative;
+}
 .fullScreenImg { 
     height:130vh;
     width:130vw;
     margin-top:-15vh;
     margin-left:-15vw;
     position:absolute;
+}
+.fullScreenBG {
+    background-size: cover;
+    background-attachment: fixed;
+    
+    height:100vh;
+    width:100vw;
+    position:absolute;
+}
+.darkMask {
+    background-color: rgba(0,0,0,0.3);
+    width:100vw;
+    height:100vh;
+    position: absolute;
 }
 .flex { 
     display:flex;
@@ -163,6 +230,7 @@ body {
     
     z-index:10;
 }
+
 .cardsNavEl {
     background-color:transparent;
     
@@ -181,6 +249,25 @@ body {
     
     border:4px solid #FFFFFF;
 }
+
+/*.cardsNavEl {
+    background-color:transparent;
+    
+    width:10px;
+    height:10px;
+    border:4px solid rgb(235,85,99);
+    border-radius:50%;
+    
+    transition: border, background-color 400ms ease;
+}
+.cardsNavEl:hover {
+    border:4px solid rgb(230,39,57);
+}
+.cardsNavEl.active {
+    background-color: rgb(230,39,57);
+    
+    border:4px solid rgb(230,39,57);
+}*/
 /* --- CRDS NAVIGATION --- */
 
 /* === WELCOME CARD === */
@@ -245,10 +332,20 @@ p.code:last-child {
 }
 .about p {
     position: relative;
-    margin:10px 50px;
+    margin:10px 10%;
     
-    font-size:1.5rem;
-    font-weight:200; 
+    font-size:2rem;
+    font-weight:300;
+    
+}
+.about .icon {
+    position:absolute;
+    top:50%;
+    width:10vh;
+    height:10vh;
+    
+    transform: translateY(-50%);
+    
 }
 #desk, #retroDesk {
     -webkit-filter: brightness(0.5);
@@ -262,15 +359,7 @@ p.code:last-child {
     height:100vh;
         
 }
-.about .icon {
-    position:absolute;
-    top:50%;
-    width:10vh;
-    height:10vh;
-    
-    transform: translateY(-50%);
-    
-}
+
 .profession .icon {
     right:-4vh;
     transform: translate(100%,-50%);
@@ -304,30 +393,20 @@ p.code:last-child {
     left:-30vw;
 }
 
-.verticalLine {
-    width:0px;
-    height:110%;
-    border:4px solid white;
-    position: absolute;
-    left: 50%;
-    top:-10px;
-    margin-left:-4px;
-    
-    transform: rotate(-10deg);
-}
-
 /* --- ABOUT CARD --- */
 
 /* === THIRD CARD === */
 
 .skills {
-    background-color: #F79256;
+    //background-color: #F79256;
+    background-image: url(layout/pics/coffeePencil.jpg);
+    background-attachment: fixed;
 }
-.skills *:not(.fullScreenImg) {
+.skills *:not(.fullScreenImg,.darkMask) {
     position:relative;
 }
 .skills .fullScreenImg {
-    -webkit-filter: brightness(0.7);
+    -webkit-filter: brightness(0.9);
 }
 .skills h2 {    
     text-align:center;
@@ -340,17 +419,102 @@ p.code:last-child {
     font-size: 3rem;
     font-weight:100; 
 }
-.skills > section {
-    width:50vw;
+.skills .scroll {
+    margin-bottom:100px;
+    z-index: 2;
+}
+.skills  section {
+    width:100%;
     float:left;
 }
-.skills > section > ul {
+.skillsList {
     width:86%;
     margin-left:7%;
-    padding: 30px;
+    padding: 0px;
     box-sizing: border-box;
-    border:1px solid #FFFFFF;
+    //border:1px solid #FFFFFF;
 }
+/*.skillsList > li {
+    background-color: #E62739;
+    
+    display: inline-block;
+    width:50%;
+    padding: 15px 40px;
+    padding-left:10px;
+    margin: 10px auto;
+    box-sizing: border-box;
+        
+    font-size: 1.5rem;
+}
+.skillsList > li:nth-child(4n+1) {
+    
+    //margin-left:7.2%;
+    //width: 56%;
+    
+    -webkit-clip-path: polygon(0 0, 100% 0, 80% 100%, 0% 100%);
+    clip-path: polygon(0 0, 100% 0, 80% 100%, 0% 100%);
+}
+.skillsList > li:nth-child(4n+2) {
+    padding-left:10%;
+    //width:40%;
+    -webkit-clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
+    clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
+    
+}
+.skillsList > li:nth-child(4n+3) {
+    //padding-left:50px;
+    
+    -webkit-clip-path: polygon(0 0, 80% 0, 100% 100%, 0 100%);
+clip-path: polygon(0 0, 80% 0, 100% 100%, 0 100%);
+}
+.skillsList > li:nth-child(4n+4) {
+    padding-left:10%;
+    -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 20% 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 20% 100%);
+   
+}*/
+/*.skillsList > li {
+    background-color: #E62739;
+    
+    display: inline-block;
+    width: 49%;
+    padding: 15px 40px;
+    padding-left:10px;
+    margin: 1% auto;
+    box-sizing: border-box;
+        
+    font-size: 1.5rem;
+    text-align: center;
+}
+.skillsList > li:nth-child(2n+1) {
+    margin-right:2%;
+}*/
+.skillsList > li {
+    background-color: transparent;
+    background-attachment: fixed;
+    background-size: 100%;
+    
+    display: inline-block;
+    min-width:15vw;
+    margin:10px 0;
+    padding: 20px 40px;
+    border:2px solid #e62739;
+    border-radius:60px;
+    outline:none;
+    
+    transition:all 300ms ease;
+    
+    font-size:2.5rem;
+    font-weight: 200;
+    font-family: Roboto, sans-serif;
+    color: #FFFFFF;
+    text-align: center;
+    //text-shadow: 0px 0px 4px #000000;
+}
+.skillsList li.bluredBG {
+    background-image: url(../pics/coffeePencilBlur.jpg);
+}
+/*
 .skills .downloadCV {
     background-color: transparent;
     
@@ -375,6 +539,34 @@ p.code:last-child {
     background-color: #FFFFFF;
     
     color: #282828;
+}
+*/
+.skills .downloadCV {
+    background-color: transparent;
+    
+    position: relative;
+    left:50%;
+    transform: translateX(-50%);
+    border:2px solid #FFFFFF;
+    padding: 20px 40px;
+    outline:none;
+    border-radius:60px;
+    margin-bottom:100px;
+    
+    transition:border,color, background-color 600ms ease;
+    cursor:pointer;
+    
+    font-size:2.5rem;
+    font-weight: 200;
+    font-family: Roboto, sans-serif;
+    color: #FFFFFF;
+}
+.skills .downloadCV:hover {
+    background-color: #e62739;
+    border:2px solid #e62739;
+
+    
+    //color: #282828;
 }
 
 /* --- THIRD CARD --- */

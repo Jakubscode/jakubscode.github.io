@@ -13,29 +13,28 @@ var about = [];
 about.push( new float(document.querySelector('#desk'),300,0,true));
 about.push( new float(document.querySelector('#retroDesk'),300,0,true));
 cards.cards.push(about);
-var secondCard = [];
-secondCard.push( new float(document.getElementById('float'),100,100,true) );
-secondCard.push( new float(document.getElementById('button4'),window.innerWidth,window.innerHeight,true));
-//console.log(firstCard.length, firstCard[0].Off(), firstCard[2].Off(), firstCard[1].Off());
-cards.cards.push(secondCard);
 var thirdCard = [];
-thirdCard.push( new float(document.getElementById('sky'),50,00,true) );
+/*thirdCard.push( new float(document.getElementById('sky'),50,00,true) );
 thirdCard.push( new float(document.getElementById('mountains2'),70,0,true) );
-thirdCard.push( new float(document.getElementById('mountains1'),100,0,true) );
+thirdCard.push( new float(document.getElementById('mountains1'),100,0,true) );*/
 cards.cards.push(thirdCard);
 cards.cards.push([]); //czwarta karta
 var cardsMenuElement = document.querySelector('.cardsNav');
-var cardChangeCallback = function(cc,nc) {
+var cardChangeCallback = function(cc,nc,time) {
     console.log('Wyłączam');
     for (var i = 0; i< cards.cards[cc].length; i++) {
-        console.log(i,cards.cards[cc], cards.cards[cc][i]);
+        //console.log(i,cards.cards[cc], cards.cards[cc][i]);
         cards.cards[cc][i].Off();
     }
     for (var i = 0; i< cards.cards[nc].length; i++) {
-                console.log(i,cards.cards[cc], cards.cards[cc][i]);
+        //console.log(i,cards.cards[cc], cards.cards[cc][i]);
 
         cards.cards[nc][i].On();
     }
+    switch(nc) {
+        case 3: console.log('Następna karta 3'); cards.class.scrollOff();
+    }
+    window.setTimeout(vpChecker.check,time);
 }
 cards.class.showMenu(cardsMenuElement, 'p', "cardsNavEl");
 cards.class.setCardChangeCallback(cardChangeCallback);
@@ -48,7 +47,7 @@ for(var i = 0; i < nextButtons.length; i++) {
 }
 /* --- CARDS SETUP --- */
 /* === VIEWPORT CHECKER === */
-var vpChecker = new ViewportChecker();
+var vpChecker = new ViewportChecker(0,0.8);
 
 /*vpChecker.add(portrait, 
     function(node) {
@@ -70,9 +69,7 @@ vpChecker.add(description,
 
 
 /* --- VIEWPORT CHECKER --- */
-document.getElementById('button4').addEventListener('click', function() {
-    alert('points');
-});
+
 
 /* === FIRST CARD === */
 
@@ -83,7 +80,7 @@ var description2 = document.querySelectorAll('p.code')[1];
 
 var welcomeType = new LiveType(document.getElementById('welcome'), "Cześć! Jestem Kuba :).", 80, function() {
     portrait.classList.remove('opacity0');
-    portrait.classList.add('fadeIn');
+    portrait.classList.add('fadeZoomIn');
     window.setTimeout(function() {
         description1.classList.remove('opacity0');
         description1.classList.add('slideUp');
@@ -105,6 +102,97 @@ var welcomeType = new LiveType(document.getElementById('welcome'), "Cześć! Jes
 });
 
 /* --- FIRST CARD ---*/
+
+/* === SKILLS CARD ===*/
+
+function skillsIn() { //function will be invoked in cardChangeCallback();
+    console.log('skillsIn()');
+    var skillsListLeft = document.querySelectorAll('.skillsList > li:nth-child(2n+1)');
+    var skillsListRight = document.querySelectorAll('.skillsList > li:nth-child(2n)');
+    for (var i = 0; i < skillsListLeft.length; i++ ) {
+        vpChecker.add(skillsListLeft[i],
+            function(el) {
+                el.classList.remove('opacity0');
+                el.classList.add('slideDownLeftFadeIn');
+                el.addEventListener('animationend',function() {
+                    //this.classList.add('bluredBG');
+                });
+            },
+            function(){}
+        );
+        console.log('SkillAded');
+    }
+    for (var i = 0; i < skillsListRight.length; i++ ) {
+        vpChecker.add(skillsListRight[i],
+            function(el) {
+                el.classList.remove('opacity0');
+                el.classList.add('slideDownRightFadeIn');
+                el.addEventListener('animationend',function() {
+                    //this.classList.add('bluredBG');
+                });
+            },
+            function(){}
+        );
+        console.log('SkillAded');
+    }
+}
+skillsIn();
+var skillsHeaders = document.querySelectorAll('.skills h2, .skills h3');
+for (var i = 0; i < skillsHeaders.length; i++ ) {
+    vpChecker.add(skillsHeaders[i],
+        function(el) {
+            el.classList.remove('opacity0');
+            el.classList.add('fadeZoomIn');
+        },
+        function(){}
+    );
+}
+var content = document.querySelector('.skills .scroll');
+var contentTopElement = content.firstElementChild;
+var contentTopElementMargin = parseFloat(window.getComputedStyle(contentTopElement).marginTop);
+//console.log(contentTopElementMargin);
+var contentBottomElement = content.lastElementChild;
+var contentBottomElementMargin = parseFloat(window.getComputedStyle(contentBottomElement).marginBottom);
+
+
+function isSkillsCardScrolledTop() {
+    var topRect = content.firstElementChild.getBoundingClientRect();
+    var bottomRect = content.lastElementChild.getBoundingClientRect();
+    //console.log(topRect.top - contentTopElementMargin, bottomRect.bottom - window.innerHeight);
+    return Math.abs(topRect.top - contentTopElementMargin) < 1;
+}
+function isSkillsCardScrolledBottom() {
+    var topRect = content.firstElementChild.getBoundingClientRect();
+    var bottomRect = content.lastElementChild.getBoundingClientRect();
+    //console.log(bottomRect.bottom + contentBottomElementMargin  - window.innerHeight);
+    return Math.abs(bottomRect.bottom + contentBottomElementMargin - window.innerHeight <1);
+}
+content.addEventListener('wheel',function(event) {
+    //console.log(isSkillsCardScrolled());
+    //console.log(event.deltaY);
+    if (event.deltaY > 0) 
+        if (isSkillsCardScrolledBottom()) 
+            window.setTimeout(cards.class.scrollOn,1000);
+        else
+            cards.class.scrollOff();
+    else 
+        if (isSkillsCardScrolledTop()) 
+            window.setTimeout(cards.class.scrollOn,1000);
+        else
+            cards.class.scrollOff();
+    
+});
+/*content.addEventListener('scroll',function() {
+    //console.log(isSkillsCardScrolled());
+    console.log(event.deltaY);
+    if (isSkillsCardScrolled()) {
+        window.setTimeout(cards.class.scrollOn,1000);
+    }
+    else
+        cards.class.scrollOff();
+});/*
+/* --- SKILLS CARD --*/
+
 /* === GENERAL === */
 var loaderCounter = document.querySelector('.loaderCount');
 var removeLoader = function() {

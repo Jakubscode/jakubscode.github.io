@@ -2,6 +2,7 @@ function Cards(className) {
     var screenH = window.innerHeight;
     var cards = document.querySelectorAll(className);
     var cc = 0; //currentCard
+    var animationTime = 1000;
     var cardChangeCallback;
     var prevIndex = function() {
         return cc > 0 ? cc-1 : cards.length-1
@@ -9,6 +10,7 @@ function Cards(className) {
     var nextIndex = function() {
         return cc < cards.length-1 ? cc+1 : 0
     }
+    var canIScroll = true;
     for (var i = 0; i < cards.length; i++) {
         (function(i) {
             cards[i].addEventListener('animationend', function() {
@@ -17,29 +19,32 @@ function Cards(className) {
                 else 
                     this.style.top = '0px';
                 this.style.animation = 'none'; 
+                scrollOn();
             });
         })(i);
     }
     var next = function(cardNum) {
+        scrollOff(); //wyłączam scroll na czas animacji
         var next = cardNum != undefined ? cardNum : nextIndex();
         cards[cc].style.animation = "toTop 1000ms 1";
         cards[cc].setAttribute('data-anim', 'toTop');
         cards[next].classList.remove('hide');
-        cards[next].style.animation = "fromBottomToCenter 1000ms 1";
+        cards[next].style.animation = "fromBottomToCenter " + animationTime + "ms 1";
         cards[next].setAttribute('data-anim', 'fromBottomToCenter');
         makeMenuElActive(cc,next);
-        if (cardChangeCallback) cardChangeCallback(cc,next);
+        if (cardChangeCallback) cardChangeCallback(cc,next,animationTime);
         cc = next;
     }
     var prev = function(cardNum) {
+        scrollOff(); //wyłączam scroll na czas animacji
         var next = cardNum != undefined ? cardNum : prevIndex();
         cards[cc].style.animation = "toBottom 1000ms 1";
         cards[cc].setAttribute('data-anim', 'toBottom');
         cards[next].classList.remove('hide');
-        cards[next].style.animation = "fromTopToCenter 1000ms 1";
+        cards[next].style.animation = "fromTopToCenter " + animationTime + "ms 1";
         cards[next].setAttribute('data-anim', 'fromTopToCenter');
         makeMenuElActive(cc,next);
-        if (cardChangeCallback) cardChangeCallback(cc,next);
+        if (cardChangeCallback) cardChangeCallback(cc,next,animationTime);
        
         cc = next;
     }
@@ -48,6 +53,15 @@ function Cards(className) {
         else if (cc < cardNum) next(cardNum)
         
     }
+    var scrollOn = function() {
+        canIScroll = true;
+        //console.warn("Cards.js -> Scroll is on");
+    }
+    var scrollOff = function() {
+        canIScroll = false;
+        //console.warn("Cards.js -> Scroll is off");
+
+    }
     this.next = next;
     this.prev = prev;
     this.moveTo = moveTo;
@@ -55,6 +69,9 @@ function Cards(className) {
     this.setCard = function(num) {
         cc = num;
     }
+    this.scrollOn = scrollOn;
+    this.scrollOff = scrollOff;
+    
     this.setCardChangeCallback = function(func) {
         cardChangeCallback = func;
     }
@@ -77,15 +94,16 @@ function Cards(className) {
         }
         else console.warn('Menu Elements Array is empty');
     }
-    var canIScroll = true;
+    
     window.addEventListener('wheel', function(event) {
+        //console.log('Scroll is enable: ', canIScroll);
         if (canIScroll) {
-            canIScroll = false;
+            scrollOff();
             if (event.deltaY > 0) 
                 next();
             else 
                 prev();
-            window.setTimeout(function(){ canIScroll = true}, 1000);
+            window.setTimeout(scrollOn, 1000);
         } 
     });
 }
