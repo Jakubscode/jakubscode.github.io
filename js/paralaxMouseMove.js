@@ -4,7 +4,7 @@ var easeOutQuad = function (t, b, c, d) {
 };
 
 function float(el,rangeX,rangeY,reverse) {
-    console.log(el);
+    //console.log(el);
     var object = {
         node : el,
         top : window.getComputedStyle(el).getPropertyValue("top") != 'auto' ? parseFloat(window.getComputedStyle(el).getPropertyValue("top")) : 0,
@@ -12,7 +12,7 @@ function float(el,rangeX,rangeY,reverse) {
         rangeX : rangeX,
         rangeY : rangeY,
     };
-    console.log(object);
+    //console.log(object);
     var rect = object.node.getBoundingClientRect();
     var x = rect.left;
     var y = rect.top;
@@ -20,7 +20,7 @@ function float(el,rangeX,rangeY,reverse) {
     var h = rect.bottom - rect.top;
     var screenW = window.innerWidth;
     var screenH = window.innerHeight;
-    console.log('offsets', screenH, screenW);
+    //console.log('offsets', screenH, screenW);
     var config = {
         stateX : undefined,
         stateY : undefined,

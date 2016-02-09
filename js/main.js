@@ -21,7 +21,7 @@ cards.cards.push(thirdCard);
 cards.cards.push([]); //czwarta karta
 var cardsMenuElement = document.querySelector('.cardsNav');
 var cardChangeCallback = function(cc,nc,time) {
-    console.log('Wyłączam');
+    console.log('CardChangeCallback');
     for (var i = 0; i< cards.cards[cc].length; i++) {
         //console.log(i,cards.cards[cc], cards.cards[cc][i]);
         cards.cards[cc][i].Off();
@@ -32,7 +32,8 @@ var cardChangeCallback = function(cc,nc,time) {
         cards.cards[nc][i].On();
     }
     switch(nc) {
-        case 3: console.log('Następna karta 3'); cards.class.scrollOff();
+        case 2: console.log('Następna karta 3'); /*cards.class.scrollOff();*/
+        break;
     }
     window.setTimeout(vpChecker.check,time);
 }
@@ -106,7 +107,7 @@ var welcomeType = new LiveType(document.getElementById('welcome'), "Cześć! Jes
 /* === SKILLS CARD ===*/
 
 function skillsIn() { //function will be invoked in cardChangeCallback();
-    console.log('skillsIn()');
+    //console.log('skillsIn()');
     var skillsListLeft = document.querySelectorAll('.skillsList > li:nth-child(2n+1)');
     var skillsListRight = document.querySelectorAll('.skillsList > li:nth-child(2n)');
     for (var i = 0; i < skillsListLeft.length; i++ ) {
@@ -120,7 +121,7 @@ function skillsIn() { //function will be invoked in cardChangeCallback();
             },
             function(){}
         );
-        console.log('SkillAded');
+        //console.log('SkillAded');
     }
     for (var i = 0; i < skillsListRight.length; i++ ) {
         vpChecker.add(skillsListRight[i],
@@ -133,7 +134,7 @@ function skillsIn() { //function will be invoked in cardChangeCallback();
             },
             function(){}
         );
-        console.log('SkillAded');
+        //console.log('SkillAded');
     }
 }
 skillsIn();
@@ -147,6 +148,9 @@ for (var i = 0; i < skillsHeaders.length; i++ ) {
         function(){}
     );
 }
+/* FORCE SCROLL OFF */
+cards.class.forceScrollOff(2);
+
 var content = document.querySelector('.skills .scroll');
 var contentTopElement = content.firstElementChild;
 var contentTopElementMargin = parseFloat(window.getComputedStyle(contentTopElement).marginTop);
@@ -170,16 +174,22 @@ function isSkillsCardScrolledBottom() {
 content.addEventListener('wheel',function(event) {
     //console.log(isSkillsCardScrolled());
     //console.log(event.deltaY);
-    if (event.deltaY > 0) 
-        if (isSkillsCardScrolledBottom()) 
-            window.setTimeout(cards.class.scrollOn,1000);
-        else
-            cards.class.scrollOff();
-    else 
-        if (isSkillsCardScrolledTop()) 
-            window.setTimeout(cards.class.scrollOn,1000);
-        else
-            cards.class.scrollOff();
+    if (cards.class.currentCard() == 2) //prevent bugs when card is partly scrolled
+        if (event.deltaY > 0) {
+            if (isSkillsCardScrolledBottom()) {
+                console.log('scrolled to bottom');
+                cards.class.scrollOn();
+            }
+            else
+                cards.class.scrollOff();
+        }
+        else 
+            if (isSkillsCardScrolledTop())  { 
+                console.log('scrolled to top');
+                cards.class.scrollOn();
+            }
+            else
+                cards.class.scrollOff();
     
 });
 /*content.addEventListener('scroll',function() {

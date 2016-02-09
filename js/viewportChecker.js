@@ -29,7 +29,7 @@ function ViewportChecker(fromTop,bottomScale) {
         lastScrollPos = window.scrollY;
         for(var i = 0; i<vpElements.length; i++) {
             vpElements[i].isInVp(scrollDown,fromTop,bottomScale);
-            console.log(vpElements[i].fuckedUp());
+            //console.log(vpElements[i].fuckedUp());
         }
     }
     window.addEventListener("scroll",checkVp);

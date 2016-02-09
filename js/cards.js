@@ -1,6 +1,7 @@
 function Cards(className) {
     var screenH = window.innerHeight;
     var cards = document.querySelectorAll(className);
+    var forcedScrollOff = [];
     var cc = 0; //currentCard
     var animationTime = 1000;
     var cardChangeCallback;
@@ -13,18 +14,26 @@ function Cards(className) {
     var canIScroll = true;
     for (var i = 0; i < cards.length; i++) {
         (function(i) {
-            cards[i].addEventListener('animationend', function() {
-                if (this.getAttribute('data-anim') == "toTop" || this.getAttribute('data-anim') == "toBottom" ) 
-                    this.classList.add('hide');
-                else 
-                    this.style.top = '0px';
-                this.style.animation = 'none'; 
-                scrollOn();
+            cards[i].addEventListener('animationend', function(event) {
+                //console.log('card.js -> Animation on element was completed.');
+                //console.log(this, event.target);
+                if (this.isEqualNode(event.target)) { //prevent event bubling. Animation end is called on every childNode of cards[i]
+                    if (this.getAttribute('data-anim') == "toTop" || this.getAttribute('data-anim') == "toBottom" ) 
+                        this.classList.add('hide');
+                    else {
+                        this.style.top = '0px';
+                        if (!forcedScrollOff.includes(parseInt(this.getAttribute('data-cardNum')))) 
+                            scrollOn('on line 25'); //turns on scrolling to current card 
+                    }
+                    this.style.animation = 'none';  
+                }
+                
             });
+            cards[i].setAttribute('data-cardNum',i); //defines card num, usefull at scrollOff exception
         })(i);
     }
     var next = function(cardNum) {
-        scrollOff(); //wyłączam scroll na czas animacji
+        //scrollOff(); //wyłączam scroll na czas animacji
         var next = cardNum != undefined ? cardNum : nextIndex();
         cards[cc].style.animation = "toTop 1000ms 1";
         cards[cc].setAttribute('data-anim', 'toTop');
@@ -36,7 +45,7 @@ function Cards(className) {
         cc = next;
     }
     var prev = function(cardNum) {
-        scrollOff(); //wyłączam scroll na czas animacji
+        //scrollOff(); //wyłączam scroll na czas animacji
         var next = cardNum != undefined ? cardNum : prevIndex();
         cards[cc].style.animation = "toBottom 1000ms 1";
         cards[cc].setAttribute('data-anim', 'toBottom');
@@ -53,14 +62,19 @@ function Cards(className) {
         else if (cc < cardNum) next(cardNum)
         
     }
-    var scrollOn = function() {
+    var scrollOn = function(msg) {
+        var msg = msg || '';
         canIScroll = true;
-        //console.warn("Cards.js -> Scroll is on");
+        console.warn("Cards.js -> Scroll is on " + msg);
     }
-    var scrollOff = function() {
+    var scrollOff = function(msg) {
+        var msg = msg || '';
         canIScroll = false;
-        //console.warn("Cards.js -> Scroll is off");
+        console.warn("Cards.js -> Scroll is off " + msg);
 
+    }
+    var forceScrollOff = function(i) {
+        forcedScrollOff.push(i);
     }
     this.next = next;
     this.prev = prev;
@@ -69,11 +83,14 @@ function Cards(className) {
     this.setCard = function(num) {
         cc = num;
     }
-    this.scrollOn = scrollOn;
-    this.scrollOff = scrollOff;
-    
+    this.scrollOn = function() {scrollOn('outside the class');};
+    this.scrollOff = function() {scrollOff('outside the class');};
+    this.forceScrollOff = forceScrollOff;
     this.setCardChangeCallback = function(func) {
         cardChangeCallback = func;
+    }
+    this.currentCard = function() {
+        return cc;
     }
     var menuElemens = [];
     this.showMenu = function(element, listNodeType, listNodeClass) {
@@ -98,12 +115,12 @@ function Cards(className) {
     window.addEventListener('wheel', function(event) {
         //console.log('Scroll is enable: ', canIScroll);
         if (canIScroll) {
-            scrollOff();
+            scrollOff('on line 108');
             if (event.deltaY > 0) 
                 next();
             else 
                 prev();
-            window.setTimeout(scrollOn, 1000);
+            //window.setTimeout(scrollOn, 1000);
         } 
     });
 }
