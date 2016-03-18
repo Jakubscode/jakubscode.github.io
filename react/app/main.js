@@ -284,7 +284,7 @@ var App = React.createClass({
         /*ajax.get('/api/' + cat, null, function (data) {
             this.setState({ data: data });
         }.bind(this));*/
-        ajax.get('../locations.json' , null, function (data) {
+        ajax.get('locations-objects.json' , null, function (data) {
             this.setState({ data: data });
         }.bind(this));
     },
