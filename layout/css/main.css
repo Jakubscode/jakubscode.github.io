@@ -30,19 +30,19 @@
     }
 }
 @-webkit-keyframes pulse {
-  0%   {-webkit-transform: scale(1.0);}
+  0%   {-webkit-transform: translate(-50%) scale(1.0);}
   
-  40%  {-webkit-transform: scale(1.1);}
+  40%  {-webkit-transform: translate(-50%) scale(1.1);}
   
-  100% {-webkit-transform: scale(1.0);}
+  100% {-webkit-transform: translate(-50%) scale(1.0);}
 } 
 
 @keyframes pulse {
-  0%   {transform: scale(1.0);}
+  0%   {transform: translate(-50%) scale(1.0);}
   
-  40%  {transform: scale(1.1);}
+  40%  {transform: translate(-50%) scale(1.1);}
   
-  100% {transform: scale(1.0);}
+  100% {transform: translate(-50%) scale(1.0);}
 }
 @-webkit-keyframes out {
   0%   {-webkit-transform: scale(1.0); opacity: 1;}
@@ -122,12 +122,12 @@ body {
 .button1 {
     background-color: #E62739;
     
+    display: block;
     border:none;
     padding:10px 30px;
     padding-bottom:17px;
     border-radius:7px;
     box-shadow: 0px -7px 0px 0px #ad1422 inset;   
-    position:absolute;
     outline:none;
 
     
@@ -164,7 +164,7 @@ body {
     position:absolute;
     bottom: 10px;
     left: 50%;
-    margin-left: -1.5%;
+    transform: translate(-50%);
     
     font-size:2rem;
 }
@@ -551,7 +551,7 @@ clip-path: polygon(0 0, 80% 0, 100% 100%, 0 100%);
     padding: 20px 40px;
     outline:none;
     border-radius:60px;
-    margin-bottom:100px;
+    margin:150px 0;
     
     transition:border,color, background-color 600ms ease;
     cursor:pointer;
@@ -568,7 +568,10 @@ clip-path: polygon(0 0, 80% 0, 100% 100%, 0 100%);
     
     //color: #282828;
 }
-
+.skills .nextButton {
+    bottom:initial;
+    margin-bottom:10px;
+}
 /* --- THIRD CARD --- */
 
 /* === 4th CARD === */

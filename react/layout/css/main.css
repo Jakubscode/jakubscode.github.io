@@ -1,0 +1,90 @@
+body,input,select {
+    background-color:#222222;
+    
+    color:#00d8ff;
+}
+
+b {
+    background-color: rgba(255,255,255,0.7);
+    
+    color:#222222;
+}
+.app {
+    width:800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    top:50px;
+    left:50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+}
+.app >div {
+    display: inline-block;
+}
+.app .mainNav {
+    display: inline-block;
+}
+.app .mainNav ul{
+    display: inline-block;
+    padding: 0px;
+    
+    list-style: none;
+    
+}
+.app .mainNav ul li{
+    display: inline-block;
+    padding: 5px 20px;
+    margin:5px;
+    border:1px solid black;
+}
+.app .searchBar {
+    margin: 10px;
+}
+.app .searchBar label {
+    margin-right:10px;
+}
+.app .searchBar input, .app .searchBar select {
+    border:2px solid #00d8ff;
+    outline:none;
+    border-radius:5px;
+    padding: 5px;
+    margin: 5px;
+}
+.app .results ol li {
+    margin: 5px;
+    //text-transform: capitalize;
+}
+.app .results>ol>li>span {
+    display: inline-block;
+    min-width:200px;
+}
+.app .results ol li button {
+    background-color: #00d8ff;
+    border:none;
+    border-radius:5px;
+    outline:none;
+    
+    color:#222222;
+}
+.places {
+    list-style: none;   
+}
+.place {
+    background-color:#292F33;
+    margin: 15px 0;
+    padding: 10px;
+    border-radius:5px;
+}
+.place p {
+    display: inline-block;
+    margin:0;
+    margin-right:20px;
+    width:400px;
+    padding: 0px;
+}
+.place button {
+    display: inline-block;
+    vertical-align:top; 
+}

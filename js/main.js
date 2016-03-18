@@ -48,7 +48,7 @@ for(var i = 0; i < nextButtons.length; i++) {
 }
 /* --- CARDS SETUP --- */
 /* === VIEWPORT CHECKER === */
-var vpChecker = new ViewportChecker(0,0.8);
+var vpChecker = new ViewportChecker(0,1);
 
 /*vpChecker.add(portrait, 
     function(node) {
@@ -178,7 +178,7 @@ content.addEventListener('wheel',function(event) {
         if (event.deltaY > 0) {
             if (isSkillsCardScrolledBottom()) {
                 console.log('scrolled to bottom');
-                cards.class.scrollOn();
+                //cards.class.scrollOn();
             }
             else
                 cards.class.scrollOff();
