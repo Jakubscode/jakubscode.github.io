@@ -281,7 +281,10 @@ var App = React.createClass({
     displayName: "App",
 
     loadDataFromServer: function (cat) {
-        ajax.get('/api/' + cat, null, function (data) {
+        /*ajax.get('/api/' + cat, null, function (data) {
+            this.setState({ data: data });
+        }.bind(this));*/
+        ajax.get('../locations.json' , null, function (data) {
             this.setState({ data: data });
         }.bind(this));
     },
