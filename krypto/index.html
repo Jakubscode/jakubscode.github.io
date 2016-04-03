@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <title>Hello World</title>
+    <meta name="description" content="Hello Wolrd">
+    <meta name="author" content="Jakub M">
+
+    <link rel="stylesheet" href="css/style.css?v=1.0">
+
+    <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <h1>Your Hidden Message</h1>
+    
+    <form action="javascript: false">
+        <label>Your Key</label>
+        <input id="key" type="text">
+        <h2>Encode</h2>
+        <p>
+            <label>Your Message </label>
+            <textarea id="msgToEncode"></textarea>
+            <button id="encode">Encode!</button>
+
+        </p>
+        <h2>Decode</h2>
+        <p>
+            <label>Your Message </label>
+            <textarea id="msgToDecode" ></textarea>
+            <button id="decode">Decode!</button>
+        </p>
+        <h2>Output</h2>
+        <p>
+            <textarea id="output"></textarea>
+        </p>
+
+    </form>
+    <script src="js/main.js"></script>
+</body>
+</html>
