@@ -103,12 +103,20 @@ var Example = Example || {}; Example["module"] =
 	    this.canvas = canvas;
 	    this.setup();
 	    this.ball = new _classesBall2["default"]({ context: this.context, color: "black", radius: 20 });
-	    this.bar = new _classesBar2["default"]({ context: this.context, color: "blue", width: 600, height: 20, x: this.canvas.width / 2, y: this.canvas.height - 20 });
+	    this.bar = new _classesBar2["default"]({ context: this.context, color: "blue", width: this.canvas.width / 5, height: 20, x: this.canvas.width / 2, y: this.canvas.height - 20 });
 	    this.state = {
-	      continueGame: true
+	      continueGame: true,
+	      points: 0
 	    };
 	    this.effects = new _classesEffects2["default"](this.context);
-	    this.buttons = {};
+	    this.layout = {
+	      buttons: {
+	        restart: this.createResterButton()
+	      },
+	      display: {
+	        points: this.createPointsDisplay()
+	      }
+	    };
 	    this.createResterButton();
 	    this.render();
 	  }
@@ -116,7 +124,7 @@ var Example = Example || {}; Example["module"] =
 	  _createClass(App, [{
 	    key: "createResterButton",
 	    value: function createResterButton() {
-	      var button = this.buttons.restart = document.createElement("button");
+	      var button = document.createElement("button");
 	      button.classList.add("restartBtn");
 	      button.innerHTML = "RESTART";
 	      document.body.appendChild(button);
@@ -127,6 +135,16 @@ var Example = Example || {}; Example["module"] =
 	        this.resetGame();
 	        this.render();
 	      }).bind(this));
+	      return button;
+	    }
+	  }, {
+	    key: "createPointsDisplay",
+	    value: function createPointsDisplay() {
+	      var points = document.createElement("p");
+	      points.classList.add("pointsDisplay");
+	      points.innerHTML = "0";
+	      document.body.appendChild(points);
+	      return points;
 	    }
 	  }, {
 	    key: "setup",
@@ -139,9 +157,10 @@ var Example = Example || {}; Example["module"] =
 	    key: "resetGame",
 	    value: function resetGame() {
 	      this.ball.setPosition({ x: 0, y: 0 });
-	      this.bar.state.apperance.width = 600;
-	      this.ball.state.direction.x = 5;
-	      this.ball.state.direction.y = 5;
+	      this.bar.state.apperance.width = this.canvas.width / 5;
+	      this.ball.state.direction.x = 7;
+	      this.ball.state.direction.y = 7;
+	      this.state.points = 0;
 	    }
 	  }, {
 	    key: "setSpeed",
@@ -177,12 +196,14 @@ var Example = Example || {}; Example["module"] =
 	        var x = this.ball.state.direction.x *= -1;
 	        this.ball.setDirection({ x: x });
 	        this.ball.setColor();
+	        this.state.points++;
 	      }
 	      /* bounce Top */
 	      if (this.ball.state.position.y < radius && this.ball.state.direction.y < 0) {
 	        var y = this.ball.state.direction.y *= -1;
 	        this.ball.setDirection({ y: y });
 	        this.ball.setColor();
+	        this.state.points++;
 	      }
 	      /* bounce Bar */
 	      if (this.ball.state.position.y + this.ball.state.apperance.radius >= this.bar.state.position.y && this.ball.state.direction.y > 0) {
@@ -190,17 +211,20 @@ var Example = Example || {}; Example["module"] =
 	          var y = this.ball.state.direction.y *= -1;
 	          this.ball.setDirection({ y: y });
 	          this.bar.setColor(this.ball.setColor());
+	          this.state.points++;
 	          if (Math.random() < 0.4) {
 	            this.ball.speedUp(1.1);
 	            console.log("speedUp");
 	          }
 
-	          if (Math.random() > 0.7) if (this.bar.state.apperance.width > 50) this.bar.state.apperance.width -= 50;
+	          if (Math.random() > 0.7) if (this.bar.state.apperance.width > 100) this.bar.state.apperance.width -= 50;
 	        } else {
 	          this.state.continueGame = false;
 	          this.renderGameOver();
 	        }
 	      }
+	      /* add points */
+	      this.layout.display.points.innerHTML = this.state.points;
 	      this.ball.reflexPosition();
 	      this.ball.render();
 	      this.bar.render();
@@ -232,8 +256,8 @@ var Example = Example || {}; Example["module"] =
 	    var radius = settings.radius || 20;
 	    this.state = {
 	      direction: {
-	        x: 5,
-	        y: 5
+	        x: 7,
+	        y: 7
 	      },
 	      position: {
 	        x: 0,
@@ -342,7 +366,10 @@ var Example = Example || {}; Example["module"] =
 	    key: "bindMoveEvent",
 	    value: function bindMoveEvent() {
 	      window.addEventListener("mousemove", (function (event) {
-	        this.setPosition({ x: event.clientX });
+	        this.setPosition({ x: event.clientX - this.state.apperance.width / 2 });
+	      }).bind(this));
+	      window.addEventListener("touchmove", (function (event) {
+	        this.setPosition({ x: event.clientX - this.state.apperance.width / 2 });
 	      }).bind(this));
 	    }
 	  }, {
@@ -477,7 +504,7 @@ var Example = Example || {}; Example["module"] =
 
 
 	// module
-	exports.push([module.id, ".canvas {\r\n  width:100%;\r\n  height:100%;\r\n}\r\n.speedBar {\r\n  position: fixed;\r\n  top: 10px;\r\n  left: 10px;\r\n  z-index:2;\r\n}\r\n.restartBtn {\r\n  position:fixed;\r\n  top:10px;\r\n  right:10px;\r\n  width:100px;\r\n  height:50px;\r\n  background-color: red;\r\n}\r\n", ""]);
+	exports.push([module.id, ".canvas {\r\n  width:100%;\r\n  height:100%;\r\n}\r\n.speedBar {\r\n  position: fixed;\r\n  top: 10px;\r\n  left: 10px;\r\n  z-index:2;\r\n}\r\n.restartBtn {\r\n  position:fixed;\r\n  top:10px;\r\n  right:10px;\r\n  width:100px;\r\n  height:50px;\r\n  background-color: red;\r\n}\r\n.pointsDisplay {\r\n  position:fixed;\r\n  top:-10px;\r\n  right:120px;\r\n  width:100px;\r\n  height:50px;\r\n  background-color: red;\r\n  text-align: center;\r\n  line-height: 50px;\r\n  font-size: 20px;\r\n}\r\n", ""]);
 
 	// exports
 
