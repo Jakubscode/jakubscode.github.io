@@ -140,6 +140,8 @@ var Example = Example || {}; Example["module"] =
 	    value: function resetGame() {
 	      this.ball.setPosition({ x: 0, y: 0 });
 	      this.bar.state.apperance.width = 600;
+	      this.ball.state.direction.x = 5;
+	      this.ball.state.direction.y = 5;
 	    }
 	  }, {
 	    key: "setSpeed",
