@@ -53,11 +53,13 @@ var Example = Example || {}; Example["module"] =
 
 	var _App2 = _interopRequireDefault(_App);
 
-	__webpack_require__(5);
 	__webpack_require__(9);
+	__webpack_require__(13);
 	(function () {
-	  var canvas = document.querySelector("#canvas");
-	  var app = new _App2["default"](canvas);
+	  var playGround = document.querySelector("#playGround");
+	  var backGround = document.querySelector("#backGround");
+
+	  var app = new _App2["default"](playGround, backGround);
 	  /*
 	  const speedBar = document.createElement("input");
 	  speedBar.setAttribute("type", "range");
@@ -88,27 +90,43 @@ var Example = Example || {}; Example["module"] =
 
 	var _classesBall2 = _interopRequireDefault(_classesBall);
 
-	var _classesBar = __webpack_require__(3);
+	var _classesBar = __webpack_require__(4);
 
 	var _classesBar2 = _interopRequireDefault(_classesBar);
 
-	var _classesEffects = __webpack_require__(4);
+	var _classesEffects = __webpack_require__(3);
 
 	var _classesEffects2 = _interopRequireDefault(_classesEffects);
 
+	var _classesLevels = __webpack_require__(5);
+
+	var _classesLevels2 = _interopRequireDefault(_classesLevels);
+
 	var App = (function () {
-	  function App(canvas) {
+	  function App(playGround, backGround) {
 	    _classCallCheck(this, App);
 
-	    this.canvas = canvas;
-	    this.setup();
-	    this.ball = new _classesBall2["default"]({ context: this.context, color: "black", radius: 20 });
-	    this.bar = new _classesBar2["default"]({ context: this.context, color: "blue", width: this.canvas.width / 5, height: 20, x: this.canvas.width / 2, y: this.canvas.height - 20 });
-	    this.state = {
-	      continueGame: true,
-	      points: 0
+	    this.canvas = { playGround: playGround, backGround: backGround };
+	    this.setupCanvas();
+	    this.levels = _classesLevels2["default"];
+	    this.game = {
+	      "continue": true,
+	      points: 0,
+	      hits: 0,
+	      lives: 0,
+	      level: 0
 	    };
-	    this.effects = new _classesEffects2["default"](this.context);
+	    this.playGround = {
+	      offset: {
+	        top: 50,
+	        left: 30,
+	        right: 30,
+	        bottom: 30
+	      },
+	      width: this.canvas.playGround.width,
+	      height: this.canvas.playGround.height
+	    };
+	    this.effects = new _classesEffects2["default"]();
 	    this.layout = {
 	      buttons: {
 	        restart: this.createResterButton()
@@ -117,11 +135,49 @@ var Example = Example || {}; Example["module"] =
 	        points: this.createPointsDisplay()
 	      }
 	    };
-	    this.createResterButton();
-	    this.render();
+	    this.balls = [];
+	    this.balls.push(new _classesBall2["default"]({ context: this.context.playGround, color: "black", radius: 20 }));
+	    this.bar = new _classesBar2["default"]({
+	      context: this.context.playGround,
+	      color: "blue",
+	      width: this.canvas.playGround.width / 5,
+	      height: 20,
+	      x: this.canvas.playGround.width / 2,
+	      y: this.canvas.playGround.height - this.playGround.offset.top,
+	      playGround: this.playGround
+	    });
+
+	    //this.createResterButton();
+	    this.renderBackGround(this.playGround.offset);
+	    this.renderPlayGround(this.playGround.offset);
 	  }
 
 	  _createClass(App, [{
+	    key: "getGameState",
+	    value: function getGameState() {
+	      return {
+	        points: this.game.points,
+	        hits: this.game.hits,
+	        playGround: this.context.playGround,
+	        backGround: this.context.backGround,
+	        balls: this.balls
+	      };
+	    }
+	  }, {
+	    key: "setupCanvas",
+	    value: function setupCanvas() {
+	      var relation = window.innerHeight / window.innerWidth;
+	      this.canvas.playGround.width = 1600;
+	      this.canvas.playGround.height = this.canvas.playGround.width * relation;
+	      this.canvas.backGround.width = 1600;
+	      this.canvas.backGround.height = this.canvas.backGround.width * relation;
+
+	      this.context = {
+	        playGround: this.canvas.playGround.getContext("2d"),
+	        backGround: this.canvas.backGround.getContext("2d")
+	      };
+	    }
+	  }, {
 	    key: "createResterButton",
 	    value: function createResterButton() {
 	      var button = document.createElement("button");
@@ -130,10 +186,8 @@ var Example = Example || {}; Example["module"] =
 	      document.body.appendChild(button);
 	      button.addEventListener("click", (function (ev) {
 	        ev.preventDefault();
-	        this.state.continueGame = false;
-	        this.state.continueGame = true;
+	        this.game["continue"] = false;
 	        this.resetGame();
-	        this.render();
 	      }).bind(this));
 	      return button;
 	    }
@@ -147,88 +201,125 @@ var Example = Example || {}; Example["module"] =
 	      return points;
 	    }
 	  }, {
-	    key: "setup",
-	    value: function setup() {
-	      this.canvas.width = window.innerWidth;
-	      this.canvas.height = window.innerHeight;
-	      this.context = this.canvas.getContext("2d");
-	    }
-	  }, {
 	    key: "resetGame",
 	    value: function resetGame() {
-	      this.ball.setPosition({ x: 0, y: 0 });
-	      this.bar.state.apperance.width = this.canvas.width / 5;
-	      this.ball.state.direction.x = 7;
-	      this.ball.state.direction.y = 7;
-	      this.state.points = 0;
-	    }
-	  }, {
-	    key: "setSpeed",
-	    value: function setSpeed(value) {
-	      var direction = {
-	        x: this.ball.state.direction.x > 0 ? value : -value,
-	        y: this.ball.state.direction.y > 0 ? value : -value
-	      };
-	      this.ball.setDirection(direction);
+	      this.balls[0].setPosition({ x: 0, y: 0 });
+	      this.balls[0].setDirection({ x: 7, y: 7 });
+	      this.bar.state.apperance.width = this.canvas.playGround.width / 5;
+	      this.balls[0].setColor();
+	      this.bar.setColor();
+
+	      this.game.points = 0;
+	      this.game.hits = 0;
+	      this.game["continue"] = true;
+	      this.renderBackGround(this.playGround.offset);
+	      this.renderPlayGround(this.playGround.offset);
 	    }
 	  }, {
 	    key: "renderGameOver",
 	    value: function renderGameOver() {
 	      var settings = {
 	        position: {
-	          x: this.canvas.width / 4,
-	          y: this.canvas.height / 2
+	          x: this.canvas.playGround.width / 4,
+	          y: this.canvas.playGround.height / 2
 	        },
-	        color: this.effects.RandomizeColor,
+	        color: this.effects.randomizeColor,
 	        text: "You are gonna to be late mother*ucker",
-	        font: "40px Serif"
+	        font: "40px Serif",
+	        context: this.context.backGround
 	      };
-	      this.effects.FadeInText(settings);
+	      this.effects.fadeInText(settings);
 	    }
 	  }, {
-	    key: "render",
-	    value: function render() {
-	      var context = this.context;
-	      var radius = this.ball.state.apperance.radius;
-	      context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+	    key: "renderBackGround",
+	    value: function renderBackGround(offset) {
+	      var context = this.context.backGround;
+	      var width = this.canvas.backGround.width;
+	      var height = this.canvas.backGround.height;
+	      context.clearRect(0, 0, width, height);
+
+	      context.fillStyle = "#1589FF";
+	      /* Top and bottom*/
+	      context.fillRect(0, 0, width, offset.top);
+	      context.fillRect(0, height - offset.bottom, width, offset.bottom);
+	      /*left and right */
+	      context.fillRect(width - offset.right, 0, offset.right, height);
+	      context.fillRect(0, 0, offset.left, height);
+	    }
+	  }, {
+	    key: "checkBallHits",
+	    value: function checkBallHits(ball, number) {
+	      var radius = ball.state.apperance.radius;
+	      var offset = this.playGround.offset;
 	      /* bounce Left and Right */
-	      if (this.ball.state.position.x > this.canvas.width - radius && this.ball.state.direction.x > 0 || this.ball.state.position.x < radius && this.ball.state.direction.x < 0) {
-	        var x = this.ball.state.direction.x *= -1;
-	        this.ball.setDirection({ x: x });
-	        this.ball.setColor();
-	        this.state.points++;
+	      if (ball.state.position.x > this.canvas.playGround.width - radius - offset.right && ball.state.direction.x > 0 || ball.state.position.x < radius + offset.left && ball.state.direction.x < 0) {
+	        var x = ball.state.direction.x *= -1;
+	        ball.setDirection({ x: x });
+	        ball.setColor();
+	        this.game.points++;
+	        this.game.hits++;
 	      }
 	      /* bounce Top */
-	      if (this.ball.state.position.y < radius && this.ball.state.direction.y < 0) {
-	        var y = this.ball.state.direction.y *= -1;
-	        this.ball.setDirection({ y: y });
-	        this.ball.setColor();
-	        this.state.points++;
+	      if (ball.state.position.y < radius + offset.top && ball.state.direction.y < 0) {
+	        var y = ball.state.direction.y *= -1;
+	        ball.setDirection({ y: y });
+	        ball.setColor();
+	        this.game.points++;
+	        this.game.hits++;
 	      }
 	      /* bounce Bar */
-	      if (this.ball.state.position.y + this.ball.state.apperance.radius >= this.bar.state.position.y && this.ball.state.direction.y > 0) {
-	        if (this.ball.state.position.x > this.bar.state.position.x && this.ball.state.position.x < this.bar.state.position.x + this.bar.state.apperance.width) {
-	          var y = this.ball.state.direction.y *= -1;
-	          this.ball.setDirection({ y: y });
-	          this.bar.setColor(this.ball.setColor());
-	          this.state.points++;
+	      if (ball.state.position.y + ball.state.apperance.radius >= this.bar.state.position.y && ball.state.direction.y > 0) {
+	        if (ball.state.position.x + ball.state.apperance.radius > this.bar.state.position.x && ball.state.position.x - ball.state.apperance.radius < this.bar.state.position.x + this.bar.state.apperance.width) {
+	          var y = ball.state.direction.y *= -1;
+	          ball.setDirection({ y: y });
+	          this.bar.setColor(ball.setColor());
+	          this.game.points++;
+	          this.game.hits++;
 	          if (Math.random() < 0.4) {
-	            this.ball.speedUp(1.1);
+	            ball.speedUp(1.1);
 	            console.log("speedUp");
 	          }
-
-	          if (Math.random() > 0.7) if (this.bar.state.apperance.width > 100) this.bar.state.apperance.width -= 50;
+	          /*
+	          if (Math.random() > 0.7)
+	            if (this.bar.state.apperance.width > 100)
+	              this.bar.state.apperance.width -= 50;
+	          */
 	        } else {
-	          this.state.continueGame = false;
-	          this.renderGameOver();
+	          if (number > 0) {
+	            this.balls.splice(number, 1);
+	          } else {
+	            this.game["continue"] = false;
+	            this.renderGameOver();
+	          }
 	        }
 	      }
-	      /* add points */
-	      this.layout.display.points.innerHTML = this.state.points;
-	      this.ball.reflexPosition();
-	      this.ball.render();
-	      this.bar.render();
-	      if (this.state.continueGame) window.requestAnimationFrame(this.render.bind(this));
+	    }
+	  }, {
+	    key: "renderPlayGround",
+	    value: function renderPlayGround(offset) {
+	      var context = this.context.playGround;
+
+	      context.clearRect(0, 0, this.canvas.playGround.width, this.canvas.playGround.height);
+
+	      /* Render Level */
+	      this.game["continue"] = !this.levels[this.game.level].levelCompleted(this.getGameState());
+	      if (this.game["continue"]) {
+	        this.levels[this.game.level].render(this.getGameState());
+	        for (var i = 0; i < this.balls.length; i++) {
+	          this.checkBallHits(this.balls[i], i);
+	          if (this.balls[i] !== undefined) {
+	            // may be deleted
+	            this.balls[i].reflexPosition();
+	            this.balls[i].render();
+	          }
+	        }
+	        /* add points */
+	        this.layout.display.points.innerHTML = this.game.points;
+	        this.bar.render();
+	        if (this.game["continue"]) window.requestAnimationFrame(this.renderPlayGround.bind(this, offset));
+	      } else {
+	        alert("Level " + (this.game.level + 1) + " completed!");
+	      }
 	    }
 	  }]);
 
@@ -239,19 +330,26 @@ var Example = Example || {}; Example["module"] =
 
 /***/ },
 /* 2 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var _Effects = __webpack_require__(3);
+
+	var _Effects2 = _interopRequireDefault(_Effects);
 
 	var Ball = (function () {
 	  function Ball(settings) {
 	    _classCallCheck(this, Ball);
 
 	    this.context = settings.context;
+	    this.effects = new _Effects2["default"]();
 	    var color = settings.color || this.randomizeColor();
 	    var radius = settings.radius || 20;
 	    this.state = {
@@ -271,19 +369,10 @@ var Example = Example || {}; Example["module"] =
 	  }
 
 	  _createClass(Ball, [{
-	    key: "randomizeColor",
-	    value: function randomizeColor() {
-	      var r = ~ ~(Math.random() * 255);
-	      var g = ~ ~(Math.random() * 255);
-	      var b = ~ ~(Math.random() * 255);
-	      var a = Math.random() * 20 / 10;
-	      return "rgba(" + r + ", " + g + ", " + b + ", " + a + ")";
-	    }
-	  }, {
 	    key: "setColor",
 	    value: function setColor(color) {
 	      var lastColor = this.state.apperance.color;
-	      this.state.apperance.color = color || this.randomizeColor();
+	      this.state.apperance.color = color || this.effects.randomizeColor();
 	      return lastColor;
 	    }
 	  }, {
@@ -296,6 +385,15 @@ var Example = Example || {}; Example["module"] =
 	    value: function setDirection(direction) {
 	      if (direction.x !== undefined) this.state.direction.x = direction.x;
 	      if (direction.y !== undefined) this.state.direction.y = direction.y;
+	    }
+	  }, {
+	    key: "setSpeed",
+	    value: function setSpeed(value) {
+	      var direction = {
+	        x: this.state.direction.x > 0 ? value : -value,
+	        y: this.state.direction.y > 0 ? value : -value
+	      };
+	      this.setDirection(direction);
 	    }
 	  }, {
 	    key: "speedUp",
@@ -343,11 +441,61 @@ var Example = Example || {}; Example["module"] =
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+	var Effects = (function () {
+	  function Effects() {
+	    _classCallCheck(this, Effects);
+	  }
+
+	  _createClass(Effects, [{
+	    key: "fadeInText",
+	    value: function fadeInText(settings) {
+	      var context = settings.context;
+	      var render = function render() {
+	        context.fillStyle = typeof settings.color == "function" ? settings.color() : settings.color;
+	        context.font = settings.font;
+	        context.fillText(settings.text, settings.position.x, settings.position.y);
+	      };
+	      render();
+	    }
+	  }, {
+	    key: "randomizeColor",
+	    value: function randomizeColor() {
+	      var r = ~ ~(Math.random() * 255);
+	      var g = ~ ~(Math.random() * 255);
+	      var b = ~ ~(Math.random() * 255);
+	      var a = Math.random() * 50 / 10;
+	      return "rgba(" + r + ", " + g + ", " + b + ", " + a + ")";
+	    }
+	  }]);
+
+	  return Effects;
+	})();
+
+	module.exports = Effects;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var _Effects = __webpack_require__(3);
+
+	var _Effects2 = _interopRequireDefault(_Effects);
+
 	var Bar = (function () {
 	  function Bar(settings) {
 	    _classCallCheck(this, Bar);
 
 	    this.context = settings.context;
+	    this.effects = new _Effects2["default"]();
+	    this.playGround = settings.playGround;
 	    this.state = {
 	      position: {
 	        x: settings.x || 0,
@@ -366,7 +514,11 @@ var Example = Example || {}; Example["module"] =
 	    key: "bindMoveEvent",
 	    value: function bindMoveEvent() {
 	      window.addEventListener("mousemove", (function (event) {
-	        this.setPosition({ x: event.clientX - this.state.apperance.width / 2 });
+	        var position = event.clientX - this.state.apperance.width / 2;
+	        //console.log(this.playGround.offset.left, position);
+	        if (position < this.playGround.offset.left) position = this.playGround.offset.left;
+	        if (position + this.state.apperance.width > this.playGround.width - this.playGround.offset.right) position = this.playGround.width - this.playGround.offset.right - this.state.apperance.width;
+	        this.setPosition({ x: position });
 	      }).bind(this));
 	      window.addEventListener("touchmove", (function (event) {
 	        this.setPosition({ x: event.clientX - this.state.apperance.width / 2 });
@@ -376,7 +528,7 @@ var Example = Example || {}; Example["module"] =
 	    key: "setColor",
 	    value: function setColor(color) {
 	      var lastColor = this.state.apperance.color;
-	      this.state.apperance.color = color || this.randomizeColor();
+	      this.state.apperance.color = color || this.effects.randomizeColor();
 	      return lastColor;
 	    }
 	  }, {
@@ -400,7 +552,167 @@ var Example = Example || {}; Example["module"] =
 	module.exports = Bar;
 
 /***/ },
-/* 4 */
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	var _Level = __webpack_require__(6);
+
+	var _Level2 = _interopRequireDefault(_Level);
+
+	var Levels = [];
+	var settings = {
+	  bonusses: [{
+	    name: "doubleBall",
+	    activationPoints: [30],
+	    activationHits: [30]
+	  }],
+	  levelCompleted: function levelCompleted(gameState) {
+	    return gameState.points > 60;
+	  }
+	};
+	var level = new _Level2["default"](settings);
+	Levels.push(level);
+
+	module.exports = Levels;
+
+	/*
+	TODO
+	  add to gameState if ball hit borders or not. Hits in object will be detected in objects build in methods depending on ball position.
+	  bonus doesnt work after reset
+	*/
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var _Bonusses = __webpack_require__(7);
+
+	var _Bonusses2 = _interopRequireDefault(_Bonusses);
+
+	var Level = (function () {
+	  function Level(settings) {
+	    _classCallCheck(this, Level);
+
+	    this.bonusses = this.setBonusses(settings.bonusses);
+	    /* bonusses = { // default bonuses match to level, any other bonuses will be conected to level-objects like rect to hit;
+	      name : NAME FROM CLASS bonusses
+	      duration: [],
+	      activationTime :[],
+	      activationPoints : []
+	      acivationPosition : {
+	        x : {
+	          from : 0,
+	          to : 0,
+	       }.
+	       y : {
+	        from : 0,
+	        to : 0,
+	      }
+	     }
+	     activationHits : []
+	    }
+	    */
+	    this.levelCompleted = settings.levelCompleted;
+	  }
+
+	  _createClass(Level, [{
+	    key: "setBonusses",
+	    value: function setBonusses(bonusses) {
+	      var bonussesList = new _Bonusses2["default"]();
+	      bonusses.forEach(function (bonus) {
+	        bonus.object = bonussesList[bonus.name]();
+	        console.log(bonus.object);
+	      });
+	      return bonusses;
+	    }
+	  }, {
+	    key: "activateBonusses",
+	    value: function activateBonusses(gameState) {
+	      this.bonusses.forEach(function (bonus) {
+	        if (!bonus.object.active && (bonus.activationPoints.includes(gameState.points) || bonus.activationHits.includes(gameState.hits))) {
+	          (function () {
+	            console.log("activation", bonus.activationPoints.includes(gameState.points), bonus.activationHits.includes(gameState.hits));
+	            var permitted = {};
+	            bonus.object.permissions.forEach(function (permission) {
+	              permitted[permission] = gameState[permission];
+	            });
+	            bonus.object.activate(permitted);
+	          })();
+	        }
+	      });
+	    }
+	  }, {
+	    key: "render",
+	    value: function render(gameState) {
+	      this.activateBonusses(gameState);
+	      this.bonusses.forEach(function (bonus) {
+	        if (bonus.object.active) bonus.object.render();
+	      });
+	    }
+	  }]);
+
+	  return Level;
+	})();
+
+	module.exports = Level;
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var _Bonus = __webpack_require__(8);
+
+	var _Bonus2 = _interopRequireDefault(_Bonus);
+
+	var _Ball = __webpack_require__(2);
+
+	var _Ball2 = _interopRequireDefault(_Ball);
+
+	var Bonusses = (function () {
+	  function Bonusses() {
+	    _classCallCheck(this, Bonusses);
+	  }
+
+	  _createClass(Bonusses, [{
+	    key: "doubleBall",
+	    value: function doubleBall() {
+	      return new _Bonus2["default"](["balls", "playGround"], function (permitted) {
+	        permitted.balls.push(new _Ball2["default"]({ context: permitted.playGround, color: "black", radius: 30 }));
+	      }, function (permitted) {
+	        permitted.balls.pop();
+	      }, function (permitted) {
+	        console.log(":)", permitted);
+	      });
+	    }
+	  }]);
+
+	  return Bonusses;
+	})();
+
+	module.exports = Bonusses;
+
+/***/ },
+/* 8 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -409,77 +721,50 @@ var Example = Example || {}; Example["module"] =
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var Effects = (function () {
-	  function Effects(context) {
-	    _classCallCheck(this, Effects);
+	var Bonus = (function () {
+	  function Bonus(permissions, onActive, onDisactive, render) {
+	    _classCallCheck(this, Bonus);
 
-	    this.context = context;
+	    this.permissions = permissions;
+	    this.active = false;
+	    this.render = render.bind(this, this.permitted);
+	    this.onActive = onActive;
+	    this.onDisactive = onDisactive;
+	    this.permitted = {};
 	  }
 
-	  _createClass(Effects, [{
-	    key: "FadeInText",
-	    value: function FadeInText(settings) {
-	      /*
-	      TODO
-	      settings = {
-	        position : {
-	          x : ,
-	          y :
-	        },
-	        size : {
-	          form : ,
-	          to :
-	        },
-	        opacity : {
-	          from : ,
-	          to :
-	        }
-	        color : ,
-	        font :,
-	        speed :
-	        text :
-	      }
-	      */
-	      var context = this.context;
-	      var render = function render() {
-
-	        context.fillStyle = typeof settings.color == "function" ? settings.color() : settings.color;
-	        console.log(context.fillStyle);
-	        context.font = settings.font;
-	        console.log(context.font, settings.text, settings.position.x, settings.position.y);
-	        console.log(context);
-	        context.fillText(settings.text, settings.position.x, settings.position.y);
-	        window.requestAnimationFrame(render);
-	      };
-	      render();
+	  _createClass(Bonus, [{
+	    key: "activate",
+	    value: function activate(permitted) {
+	      this.active = true;
+	      this.permitted = permitted;
+	      this.onActive(this.permitted);
 	    }
 	  }, {
-	    key: "RandomizeColor",
-	    value: function RandomizeColor() {
-	      var r = ~ ~(Math.random() * 255);
-	      var g = ~ ~(Math.random() * 255);
-	      var b = ~ ~(Math.random() * 255);
-	      var a = Math.random() * 20 / 10;
-	      return "rgba(" + r + ", " + g + ", " + b + ", " + a + ")";
+	    key: "deactivate",
+	    value: function deactivate() {
+	      this.active = false;
+	      this.onDisactive(this.permitted);
+	      this.permitted = {};
 	    }
 	  }]);
 
-	  return Effects;
+	  return Bonus;
 	})();
 
-	module.exports = Effects;
+	module.exports = Bonus;
 
 /***/ },
-/* 5 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(6);
+	var content = __webpack_require__(10);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(8)(content, {});
+	var update = __webpack_require__(12)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -496,21 +781,21 @@ var Example = Example || {}; Example["module"] =
 	}
 
 /***/ },
-/* 6 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(7)();
+	exports = module.exports = __webpack_require__(11)();
 	// imports
 
 
 	// module
-	exports.push([module.id, ".canvas {\r\n  width:100%;\r\n  height:100%;\r\n}\r\n.speedBar {\r\n  position: fixed;\r\n  top: 10px;\r\n  left: 10px;\r\n  z-index:2;\r\n}\r\n.restartBtn {\r\n  position:fixed;\r\n  top:10px;\r\n  right:10px;\r\n  width:100px;\r\n  height:50px;\r\n  background-color: red;\r\n}\r\n.pointsDisplay {\r\n  position:fixed;\r\n  top:-10px;\r\n  right:120px;\r\n  width:100px;\r\n  height:50px;\r\n  background-color: red;\r\n  text-align: center;\r\n  line-height: 50px;\r\n  font-size: 20px;\r\n}\r\n", ""]);
+	exports.push([module.id, ".canvas {\r\n  width:100%;\r\n  height:100%;\r\n  position:fixed;\r\n  top:0px;\r\n  left:0px;\r\n}\r\n.speedBar {\r\n  position: fixed;\r\n  top: 10px;\r\n  left: 10px;\r\n  z-index:2;\r\n}\r\n.restartBtn {\r\n  position:fixed;\r\n  top:10px;\r\n  right:10px;\r\n  width:100px;\r\n  height:50px;\r\n  background-color: red;\r\n}\r\n.pointsDisplay {\r\n  position:fixed;\r\n  top:-10px;\r\n  right:120px;\r\n  width:100px;\r\n  height:50px;\r\n  background-color: red;\r\n  text-align: center;\r\n  line-height: 50px;\r\n  font-size: 20px;\r\n}\r\n", ""]);
 
 	// exports
 
 
 /***/ },
-/* 7 */
+/* 11 */
 /***/ function(module, exports) {
 
 	/*
@@ -566,7 +851,7 @@ var Example = Example || {}; Example["module"] =
 
 
 /***/ },
-/* 8 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -818,16 +1103,16 @@ var Example = Example || {}; Example["module"] =
 
 
 /***/ },
-/* 9 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(10);
+	var content = __webpack_require__(14);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(8)(content, {});
+	var update = __webpack_require__(12)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -844,10 +1129,10 @@ var Example = Example || {}; Example["module"] =
 	}
 
 /***/ },
-/* 10 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(7)();
+	exports = module.exports = __webpack_require__(11)();
 	// imports
 
 
