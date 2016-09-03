@@ -79,10 +79,10 @@ webpackJsonp([0,1],[
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	__webpack_require__(17);
-	var terrainUrl = __webpack_require__(22);
-	var spritesUrl = __webpack_require__(23);
-	var starsUrl = __webpack_require__(24);
-	var musicUrl = __webpack_require__(25);
+	var terrainUrl = __webpack_require__(23);
+	var spritesUrl = __webpack_require__(24);
+	var starsUrl = __webpack_require__(25);
+	var musicUrl = __webpack_require__(26);
 
 	/* TODO
 	* colectiong  wapons 'n powerups, activation and disactivation, powerups mechanism improvement
@@ -410,20 +410,22 @@ webpackJsonp([0,1],[
 	            window.setTimeout(this.modules.controls.hideControls.bind(this.modules.controls), 3000);
 	            document.getElementById('game-over').style.display = 'none';
 	            document.getElementById('game-over-overlay').style.display = 'none';
+	            document.body.classList.remove("lsd");
 	            this.state.FPS = 60;
 	            this.state.isGameOver = false;
 	            this.state.gameTime = 0;
 	            this.state.score = 0;
+	            this.state.scoreMultiply = 1;
 	            this.state.weapon = new _Weapon2.default();
 	            this.state.enemies = [];
 	            this.state.bullets = [];
 	            this.state.explosions = [];
 	            /* Powerup class as a wrapper to powerups, methods render update etc  + activate, deactivate;*/
-	            var pow = void 0;
+	            //let pow;
 	            this.state.powerups = new _Powerups2.default(this.modules.internal);
-	            this.state.powerups.push(pow = new _Powerup2.default(this.modules.internals, "bullets", "torpedo_forward", 50));
-	            pow.activate();
-	            this.state.powerups.push(pow = new _Powerup2.default(this.modules.internals, "bullets", "plasma_forward", 50));
+	            //this.state.powerups.push((pow = new Powerup(this.modules.internals, "bullets", "torpedo_forward", 50)));
+	            //pow.activate();
+	            //this.state.powerups.push((pow = new Powerup(this.modules.internals, "bullets", "plasma_forward", 50)));
 	            //pow.activate();
 	            this.state.gifts = [];
 	            this.modules.stars = [];
@@ -946,7 +948,9 @@ webpackJsonp([0,1],[
 	        this.state = {};
 	        this.modules = {};
 	        this.state.pos = [0, 0], this.state.speed = 200;
+	        this.state.defence = false;
 	        this.modules.sprite = new _sprite2.default(this.externals.modules.spritesUrl, [5, 160], [70, 60], 16, [0, 1, 2, 3, 4, 3, 2, 1]);
+	        this.modules.defence = new _sprite2.default(this.externals.modules.spritesUrl, [0, 500], [130, 100], 14, [0, 1, 2, 1]);
 	    }
 
 	    _createClass(Player, [{
@@ -973,6 +977,7 @@ webpackJsonp([0,1],[
 	        key: "update",
 	        value: function update() {
 	            this.modules.sprite.update(this.externals.state.dt);
+	            if (this.state.defence) this.modules.defence.update(this.externals.state.dt);
 	        }
 	    }, {
 	        key: "render",
@@ -981,6 +986,13 @@ webpackJsonp([0,1],[
 	            ctx.save();
 	            ctx.translate(this.state.pos[0], this.state.pos[1]);
 	            this.modules.sprite.render(ctx);
+	            if (this.state.defence) {
+	                ctx.globalCompositeOperation = "destination-over";
+	                var defX = (this.modules.sprite.size[0] - this.modules.defence.size[0]) / 2;
+	                var defY = (this.modules.sprite.size[1] - this.modules.defence.size[1]) / 2;
+	                ctx.translate(defX, defY);
+	                this.modules.defence.render(ctx);
+	            }
 	            ctx.restore();
 	        }
 	    }]);
@@ -1129,7 +1141,7 @@ webpackJsonp([0,1],[
 	                        if (enemies[_i].state.hp == 0) {
 	                            // Add score
 	                            var score = enemies[_i].state.score;
-	                            _this.externals.state.score += score;
+	                            _this.externals.state.score += _this.externals.state.scoreMultiply * score;
 
 	                            // Remove the enemy
 	                            enemies.splice(_i, 1);
@@ -1137,7 +1149,7 @@ webpackJsonp([0,1],[
 
 	                            if (_this.externals.state.gifts.length < 3 && Math.random() < 0.1 + score / 50) {
 	                                (function () {
-	                                    var giftsIndexesArray = [0, 0, 1, 0, 0, 0, 0];
+	                                    var giftsIndexesArray = [0, 1, 1, 0, 0, 2, 0, 3, 0, 1, 2, 3];
 	                                    var randomI = ~~(giftsIndexesArray.length * Math.random());
 	                                    window.setTimeout(function () {
 	                                        console.log(randomI, giftsIndexesArray[randomI]);
@@ -1158,7 +1170,8 @@ webpackJsonp([0,1],[
 	                    }
 	                }
 
-	                if (_this.boxCollides(pos, size, player.state.pos, player.modules.sprite.size)) {
+	                if (!player.state.defence && _this.boxCollides(pos, size, player.state.pos, player.modules.sprite.size)) {
+	                    //i player has no defence and colides enemy
 	                    _this.externals.modules.gameOver();
 	                }
 	                i = _i;
@@ -1171,7 +1184,7 @@ webpackJsonp([0,1],[
 	                var _pos = gifts[_i2].state.pos;
 	                var _size = gifts[_i2].modules.sprite.size;
 	                if (this.boxCollides(_pos, _size, player.state.pos, player.modules.sprite.size)) {
-	                    var powerup = new _Powerup2.default(this.externals, gifts[_i2].modules.gift.type, gifts[_i2].modules.gift.name, ~~(Math.random() * 40));
+	                    var powerup = new _Powerup2.default(this.externals, gifts[_i2].modules.gift.type, gifts[_i2].modules.gift.name, ~~(Math.random() * 20 + 10));
 	                    this.externals.state.powerups.push(powerup);
 	                    if (!this.externals.state.powerups.isAnyOfTypeActive(gifts[_i2].modules.gift.type)) powerup.activate();
 	                    gifts.splice(_i2, 1);
@@ -1317,7 +1330,7 @@ webpackJsonp([0,1],[
 
 /***/ },
 /* 11 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
@@ -1326,6 +1339,12 @@ webpackJsonp([0,1],[
 	});
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _sprite = __webpack_require__(3);
+
+	var _sprite2 = _interopRequireDefault(_sprite);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1346,6 +1365,16 @@ webpackJsonp([0,1],[
 	                {
 	                    this.modules.sprite = externals.modules.objects[type][name](externals, [0, 0]).modules.sprite; // get weapon sprite, pos array does not matter this time;
 	                }break;
+	            case "special":
+	                {
+	                    if (name === "lsd") this.modules.sprite = new _sprite2.default(externals.modules.spritesUrl, [50, 30], [20, 20]);
+	                }break;
+	            case "defence":
+	                {
+	                    if (this.state.name === "regular") {
+	                        this.modules.sprite = new _sprite2.default(externals.modules.spritesUrl, [71, 621], [9, 9]);
+	                    }
+	                }break;
 	        }
 	    }
 
@@ -1357,6 +1386,19 @@ webpackJsonp([0,1],[
 	                    {
 	                        this.externals.state.weapon.set(this.state.name, this.state.durationTime + this.externals.state.gameTime);
 	                    };break;
+	                case "special":
+	                    {
+	                        if (this.state.name === "lsd") {
+	                            this.externals.state.scoreMultiply = 3;
+	                            document.body.classList.add("lsd");
+	                        }
+	                    }break;
+	                case "defence":
+	                    {
+	                        if (this.state.name === "regular") {
+	                            this.externals.state.player.state.defence = true;
+	                        }
+	                    }break;
 	            }
 	            this.state.active = true;
 	        }
@@ -1368,6 +1410,19 @@ webpackJsonp([0,1],[
 	                    {
 	                        this.externals.state.weapon.restoreDefault();
 	                    };break;
+	                case "special":
+	                    {
+	                        if (this.state.name === "lsd") {
+	                            document.body.classList.remove("lsd");
+	                            this.externals.state.scoreMultiply = 1;
+	                        }
+	                    }break;
+	                case "defence":
+	                    {
+	                        if (this.state.name === "regular") {
+	                            this.externals.state.player.state.defence = false;
+	                        }
+	                    }break;
 	            }
 	            this.state.active = false;
 	        }
@@ -1620,9 +1675,13 @@ webpackJsonp([0,1],[
 	    },
 	    powerups: {},
 	    gifts: [function (externals, pos) {
-	        return new _Gift2.default(externals, "bullets", "torpedo_forward", externals.state.gameTime + Math.random() * 20 + 20, pos);
+	        return new _Gift2.default(externals, "bullets", "torpedo_forward", externals.state.gameTime + Math.random() * 20 + 5, pos);
 	    }, function (externals, pos) {
-	        return new _Gift2.default(externals, "bullets", "plasma_forward", externals.state.gameTime + Math.random() * 20 + 20, pos, new _sprite2.default(externals.modules.spritesUrl, [0, 400], [50, 50], 5, [0, 1]));
+	        return new _Gift2.default(externals, "bullets", "plasma_forward", externals.state.gameTime + Math.random() * 20 + 5, pos, new _sprite2.default(externals.modules.spritesUrl, [0, 400], [50, 50], 5, [0, 1]));
+	    }, function (externals, pos) {
+	        return new _Gift2.default(externals, "special", "lsd", externals.state.gameTime + Math.random() * 15 + 10, pos, new _sprite2.default(externals.modules.spritesUrl, [0, 450], [50, 50], 5, [0, 1]));
+	    }, function (externals, pos) {
+	        return new _Gift2.default(externals, "defence", "regular", externals.state.gameTime + Math.random() * 15 + 10, pos, new _sprite2.default(externals.modules.spritesUrl, [0, 600], [50, 50], 5, [0, 1]));
 	    }],
 	    explosions: {
 	        regular: function regular(externals, pos) {
@@ -1786,7 +1845,7 @@ webpackJsonp([0,1],[
 	var content = __webpack_require__(18);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(21)(content, {});
+	var update = __webpack_require__(22)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(true) {
@@ -1811,7 +1870,7 @@ webpackJsonp([0,1],[
 
 
 	// module
-	exports.push([module.id, "html, body {\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n  background-color: #283044; }\n\n.UP, .DOWN, .LEFT, .RIGHT, .FIRE {\n  background-color: white;\n  border: 1px solid white;\n  opacity: 0.1;\n  width: 13%;\n  height: 23.11111%;\n  position: absolute;\n  z-index: 3;\n  border-radius: 50%;\n  -webkit-transition: all 0.6ms ease;\n  transition: all 0.6s ease;\n  display: flex;\n  align-items: center;\n  /* Vertical center alignment */\n  justify-content: center;\n  /* Horizontal center alignment */\n  color: #283044;\n  font-size: 4em;\n  text-align: center;\n  font-weight: bold;\n  outline: none; }\n\ndiv.hide {\n  background-color: transparent;\n  color: transparent; }\n\ndiv.disappear {\n  display: none; }\n\n.UP {\n  right: 20%;\n  bottom: 35%; }\n\n.DOWN {\n  right: 20%;\n  bottom: 2%; }\n\n.LEFT {\n  right: 37%;\n  bottom: 2%; }\n\n.RIGHT {\n  right: 3%;\n  bottom: 2%; }\n\ndiv:not(.FIRE):active {\n  background-color: white;\n  opacity: 0.05; }\n\n.FIRE {\n  width: 40%;\n  height: 100%;\n  bottom: 0;\n  left: 0;\n  border-radius: 0; }\n\n.FIRE.hide {\n  border: none; }\n\ncanvas {\n  display: block;\n  margin: auto;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 2; }\n\n.FPS {\n  position: absolute;\n  top: 20px;\n  left: 20px;\n  z-index: 3;\n  color: white;\n  font-size: 25px; }\n\n.TIME {\n  position: absolute;\n  top: 20px;\n  left: 160px;\n  z-index: 3;\n  color: white;\n  font-size: 25px; }\n\n.SETFPS {\n  position: absolute;\n  top: 20px;\n  left: 300px;\n  z-index: 3;\n  color: white;\n  font-size: 25px; }\n\n#score {\n  float: right;\n  color: white;\n  font-size: 2.3em;\n  z-index: 3;\n  position: absolute;\n  top: 6%;\n  right: 6%;\n  font-family: sans-serif; }\n\n#game-over, #game-over-overlay {\n  margin: auto;\n  width: 512px;\n  height: 480px;\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  z-index: 4;\n  display: none; }\n\n#game-over {\n  height: 200px;\n  text-align: center;\n  color: white; }\n\n#game-over h1 {\n  font-size: 3em;\n  font-family: sans-serif; }\n\n#game-over button {\n  font-size: 1.5em; }\n\n.stars {\n  position: absolute;\n  width: 130vw;\n  height: 170vh;\n  margin-top: -35vh;\n  margin-left: -15vw;\n  z-index: 0;\n  background-image: url(" + __webpack_require__(20) + "); }\n", ""]);
+	exports.push([module.id, "html, body {\n  margin: 0;\n  padding: 0;\n  overflow: hidden; }\n\nbody {\n  background: #283044; }\n\nbody.lsd {\n  background-image: url(" + __webpack_require__(20) + ");\n  background-repeat: no-repeat;\n  background-size: 100%;\n  background-position: 9% 9%; }\n\nbody.lsd::before {\n  background-color: rgba(40, 48, 68, 0.9);\n  content: '';\n  display: block;\n  height: 100%;\n  position: absolute;\n  width: 100%; }\n\n.UP, .DOWN, .LEFT, .RIGHT, .FIRE {\n  background-color: white;\n  border: 1px solid white;\n  opacity: 0.1;\n  width: 13%;\n  height: 23.11111%;\n  position: absolute;\n  z-index: 3;\n  border-radius: 50%;\n  -webkit-transition: all 0.6ms ease;\n  transition: all 0.6s ease;\n  display: flex;\n  align-items: center;\n  /* Vertical center alignment */\n  justify-content: center;\n  /* Horizontal center alignment */\n  color: #283044;\n  font-size: 4em;\n  text-align: center;\n  font-weight: bold;\n  outline: none; }\n\ndiv.hide {\n  background-color: transparent;\n  color: transparent; }\n\ndiv.disappear {\n  display: none; }\n\n.UP {\n  right: 20%;\n  bottom: 35%; }\n\n.DOWN {\n  right: 20%;\n  bottom: 2%; }\n\n.LEFT {\n  right: 37%;\n  bottom: 2%; }\n\n.RIGHT {\n  right: 3%;\n  bottom: 2%; }\n\ndiv:not(.FIRE):active {\n  background-color: white;\n  opacity: 0.05; }\n\n.FIRE {\n  width: 40%;\n  height: 100%;\n  bottom: 0;\n  left: 0;\n  border-radius: 0; }\n\n.FIRE.hide {\n  border: none; }\n\ncanvas {\n  display: block;\n  margin: auto;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 2; }\n\n.FPS {\n  position: absolute;\n  top: 20px;\n  left: 20px;\n  z-index: 3;\n  color: white;\n  font-size: 25px; }\n\n.TIME {\n  position: absolute;\n  top: 20px;\n  left: 160px;\n  z-index: 3;\n  color: white;\n  font-size: 25px; }\n\n.SETFPS {\n  position: absolute;\n  top: 20px;\n  left: 300px;\n  z-index: 3;\n  color: white;\n  font-size: 25px; }\n\n#score {\n  float: right;\n  color: white;\n  font-size: 2.3em;\n  z-index: 3;\n  position: absolute;\n  top: 6%;\n  right: 6%;\n  font-family: sans-serif; }\n\n#game-over, #game-over-overlay {\n  margin: auto;\n  width: 512px;\n  height: 480px;\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  z-index: 4;\n  display: none; }\n\n#game-over {\n  height: 200px;\n  text-align: center;\n  color: white; }\n\n#game-over h1 {\n  font-size: 3em;\n  font-family: sans-serif; }\n\n#game-over button {\n  font-size: 1.5em; }\n\n.stars {\n  position: absolute;\n  width: 130vw;\n  height: 170vh;\n  margin-top: -35vh;\n  margin-left: -15vw;\n  z-index: 0;\n  background-image: url(" + __webpack_require__(21) + "); }\n", ""]);
 
 	// exports
 
@@ -1876,10 +1935,16 @@ webpackJsonp([0,1],[
 /* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__.p + "img/stars.png";
+	module.exports = __webpack_require__.p + "img/lsd.jpg";
 
 /***/ },
 /* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "img/stars.png";
+
+/***/ },
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -2131,25 +2196,25 @@ webpackJsonp([0,1],[
 
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "img/terrain.png";
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "img/sprites.png";
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "img/stars_small.png";
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "music/Unknown_Planet_cutted.mp3";
